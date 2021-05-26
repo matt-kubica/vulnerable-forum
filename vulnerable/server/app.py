@@ -1,34 +1,22 @@
-from flask import Flask
-import psycopg2
+from flask import Flask, render_template, request
+from flask.wrappers import Request
 import os
+import helper_functions.testDB as helperFunctions
 
-app = Flask(__name__)
-
-
-def db():
-    # con = psycopg2.connect(database=os.environ.get('POTGRES_DB'),
-    #                        user=os.environ.get('POSTGRES_USER'), 
-    #                        password=os.environ.get('POSTGRES_PASSWORD'), 
-    #                        host="db", port="5432")
-    con = psycopg2.connect(database='default',
-                           user='admin', 
-                           password='admin', 
-                           host="db", port="5432")
-    print("Database opened successfully")
-
-    cur = con.cursor()
-    cur.execute("INSERT INTO users (username, password) VALUES ('John', 'some-hash')");
-
-    con.commit()
-    print("Record inserted successfully")
-    con.close()
-
-
+app = Flask(__name__, template_folder="front_end/templates")
 
 @app.route('/')
 def hello_world():
     db()
     return 'Hello, World!'
+
+@app.route('/questions', methods=['GET', 'POST'])
+def questions():
+    if request.method == 'POST':
+        helperFunctions.db()
+        return helperFunctions.hello()
+    else:
+        return render_template('questions.html')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
