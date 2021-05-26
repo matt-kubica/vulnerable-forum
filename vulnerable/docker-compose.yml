@@ -1,0 +1,40 @@
+version: '3.3'
+
+services:
+  app:
+    container_name: vulnerable-app
+    build: ./server
+    command: pipenv run python app.py
+    restart: unless-stopped
+    ports:
+      - 5000:5000
+    volumes:
+      - ./server:/usr/src/app
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+    networks:
+      - default
+
+  db:
+    container_name: postgres-db
+    image: postgres
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      - ./db-init.sql:/docker-entrypoint-initdb.d/init.sql
+    env_file:
+      - ./.env
+    networks:
+      - default
+
+  
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    driver: bridge
