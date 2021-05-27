@@ -4,7 +4,6 @@ services:
   app:
     container_name: vulnerable-app
     build: ./server
-    command: pipenv run python app.py
     restart: unless-stopped
     ports:
       - 5000:5000
