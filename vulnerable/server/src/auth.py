@@ -30,7 +30,6 @@ def login_required(function):
 
 @auth.route('/login',  methods=['GET', 'POST'])
 def login():
-
     if request.method == 'GET':
         return render_template('login.html')
 
@@ -46,7 +45,7 @@ def login():
             flash('Please check your login details and try again.')
             return redirect(url_for('auth.login'))
 
-        res = redirect(url_for('main.profile'))
+        res = redirect(url_for('main.questions'))
         # TODO: generate some random string, store it somewhere, then limit access to other pages basing on this cookie
         res.set_cookie('session_id', generate_cookie(username))
         logging.debug('cookies: {0}'.format(cookies))

@@ -49,4 +49,41 @@ def get_user(**kwargs):
 
     return None
 
+def get_userID(**kwargs):
+    cur = connection.cursor()
 
+    if 'username' in kwargs:
+        cur.execute("SELECT id FROM users WHERE username='{0}';".format(kwargs['username']))
+        res = cur.fetchall()
+        return res[0][0] if len(res) > 0 else None
+
+    return None
+
+def get_questions(**kwargs):
+    cur = connection.cursor()
+
+    # if specific question exists query that else query all the questions
+    if 'question' in kwargs: 
+        return
+    else:
+        cur.execute("SELECT question_text FROM questions;")
+        res = cur.fetchall()
+        return res if len(res) > 0 else None
+
+def get_questionID(**kwargs):
+    cur = connection.cursor()
+
+    if 'question' in kwargs: 
+        cur.execute("SELECT id FROM questions WHERE question_text='{0}';".format(kwargs['question']))
+        res = cur.fetchall()
+        return res[0][0] if len(res) > 0 else None
+    else:
+        return
+
+def insertAnswer(**kwargs):
+    cur = connection.cursor()
+
+    if 'questionID' in kwargs and 'userID' in kwargs and 'answer' in kwargs:
+        cur.execute("INSERT INTO answers (question_id, user_id, answer_text) VALUES ('{0}', '{1}', '{2}');".format(kwargs['questionID'], kwargs['userID'], kwargs['answer']))
+        connection.commit()
+        logging.debug('Added answer to database...')
