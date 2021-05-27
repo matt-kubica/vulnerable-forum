@@ -1,6 +1,8 @@
 import psycopg2
 import logging, os
 
+from .models import User, Question, Answer
+
 logging.basicConfig(level=logging.DEBUG)
 
 connection_params = {
@@ -20,34 +22,40 @@ def add_user(email, username, password):
     cur.execute("INSERT INTO users (email, username, password) VALUES ('{0}', '{1}', '{2}');"
                 .format(email, username, password))
     connection.commit()
-    logging.debug('Added user to database...')
 
 
-def add_question(username, question):
+def add_question(user_id, question_text):
     cur = connection.cursor()
-    cur.execute("SELECT id FROM users WHERE username='{0}';".format(username))
-    res = cur.fetchall()
-    if len(res) > 0:
-        user_id = res[0][0]
-        cur.execute("INSERT INTO questions (user_id, question_text) VALUES ('{0}', '{1}');".format(user_id, question))
-        connection.commit()
-        logging.debug('Added question to database...')
+    cur.execute("INSERT INTO questions (user_id, question_text) VALUES ('{0}', '{1}');"
+                .format(user_id, question_text))
+    connection.commit()
+
+
+def add_answer(question_id, user_id, answer_text):
+    cur = connection.cursor()
+    cur.execute("INSERT INTO answers (question_id, user_id, answer_text) VALUES ('{0}', '{1}', '{2}');"
+                .format(question_id, user_id, answer_text))
+    connection.commit()
+
 
 def get_user(**kwargs):
     cur = connection.cursor()
 
     if 'email' in kwargs and 'username' in kwargs:
         cur.execute("SELECT * FROM users WHERE email='{0}' AND username='{1}';"
-                    .format(kwargs['username'], kwargs['email']))
+                    .format(kwargs['email'], kwargs['username']))
         res = cur.fetchall()
-        return res[0] if len(res) > 0 else None
+        if res:
+            return User(res[0][0], res[0][1], res[0][2], res[0][3])
+        return None
 
     if 'username' in kwargs:
         cur.execute("SELECT * FROM users WHERE username='{0}';".format(kwargs['username']))
         res = cur.fetchall()
-        return res[0] if len(res) > 0 else None
+        if res:
+            return User(res[0][0], res[0][1], res[0][2], res[0][3])
+        return None
 
-    return None
 
 def get_userID(**kwargs):
     cur = connection.cursor()
@@ -59,31 +67,46 @@ def get_userID(**kwargs):
 
     return None
 
-def get_questions(**kwargs):
-    cur = connection.cursor()
 
-    # if specific question exists query that else query all the questions
-    if 'question' in kwargs: 
-        return
-    else:
-        cur.execute("SELECT question_text FROM questions;")
-        res = cur.fetchall()
-        return res if len(res) > 0 else None
 
 def get_questionID(**kwargs):
     cur = connection.cursor()
 
-    if 'question' in kwargs: 
+    if 'question' in kwargs:
         cur.execute("SELECT id FROM questions WHERE question_text='{0}';".format(kwargs['question']))
         res = cur.fetchall()
         return res[0][0] if len(res) > 0 else None
     else:
         return
 
-def insertAnswer(**kwargs):
+
+def get_question(**kwargs):
     cur = connection.cursor()
 
-    if 'questionID' in kwargs and 'userID' in kwargs and 'answer' in kwargs:
-        cur.execute("INSERT INTO answers (question_id, user_id, answer_text) VALUES ('{0}', '{1}', '{2}');".format(kwargs['questionID'], kwargs['userID'], kwargs['answer']))
-        connection.commit()
-        logging.debug('Added answer to database...')
+    if 'id' in kwargs:
+        cur.execute("SELECT * FROM questions WHERE id='{0}';".format(kwargs['id']))
+        res = cur.fetchall()
+        if res:
+            return Question(res[0][0], res[0][1], res[0][2])
+        return None
+
+
+def get_questions(**kwargs):
+    cur = connection.cursor()
+
+    cur.execute("SELECT * FROM questions;")
+    res = cur.fetchall()
+    if res:
+        return [Question(res[i][0], res[i][1], res[i][2]) for i in range(0, len(res))]
+    return []
+
+
+def get_answers(**kwargs):
+    cur = connection.cursor()
+
+    if 'question_id' in kwargs:
+        cur.execute("SELECT * FROM answers WHERE question_id='{0}';".format(kwargs['question_id']))
+        res = cur.fetchall()
+        if res:
+            return [Answer(res[i][0], res[i][1], res[i][2], res[i][3]) for i in range(0, len(res))]
+        return []

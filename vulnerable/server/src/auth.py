@@ -6,27 +6,15 @@ import logging, uuid, functools
 logging.basicConfig(level=logging.DEBUG)
 auth = Blueprint('auth', __name__)
 
-# uuid -> username
+# uuid -> User
 cookies = {
 
 }
 
-def generate_cookie(username):
+def generate_cookie(user):
     generated_uuid = str(uuid.uuid4())
-    cookies[generated_uuid] = username
+    cookies[generated_uuid] = user
     return generated_uuid
-
-def login_required(function):
-    @functools.wraps(function)
-    def decorated_function(*args, **kwargs):
-        logging.debug('Decorator works')
-        session_id = request.cookies.get('session_id')
-        if session_id in cookies:
-            logging.debug('Decorator works')
-            return function(*args, **kwargs)
-        raise Exception
-    return decorated_function
-
 
 @auth.route('/login',  methods=['GET', 'POST'])
 def login():
@@ -39,21 +27,19 @@ def login():
     # validate if fields have been provided
     if username and password:
         # check if user exist
-        user_credentials_array = get_user(username=username)
+        user = get_user(username=username)
         # 'authenticate' user
-        if not user_credentials_array or not user_credentials_array[2] == password:
+        if not user or not user.password == password:
             flash('Please check your login details and try again.')
             return redirect(url_for('auth.login'))
 
         res = redirect(url_for('main.questions'))
-        # TODO: generate some random string, store it somewhere, then limit access to other pages basing on this cookie
-        res.set_cookie('session_id', generate_cookie(username))
-        logging.debug('cookies: {0}'.format(cookies))
+        session_id = generate_cookie(user)
+        res.set_cookie('session_id', session_id)
         return res
     else:
         flash('Please check your login details and try again.')
         return redirect(url_for('auth.login'))
-
 
 
 
@@ -72,8 +58,7 @@ def signup():
     if email and username and password:
         # if user doesn't exist yet, can be added to database
         if not get_user(email=email, username=username):
-            logging.debug('<User {0}:{1}:{2}>'.format(email, username, password))
-            add_user(email=email, username=username, password=password)
+            add_user(email, username, password)
             return redirect(url_for('auth.login'))
         else:
             flash('Email address already exists')
@@ -84,6 +69,7 @@ def signup():
 
 
 @auth.route('/logout')
-@login_required
 def logout():
-    return 'Logout'
+    session_id = request.cookies.get('session_id')
+    if session_id in cookies: del cookies[session_id]
+    return redirect(url_for('auth.login'))
