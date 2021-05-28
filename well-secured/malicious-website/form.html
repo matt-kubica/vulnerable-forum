@@ -7,10 +7,8 @@
 <body>
     <h1>Some Malicious Form</h1>
     <form action="http://localhost:5000/answers" method="POST">
-        <input type="text" name="name" placeholder="some name"/>
-        <input type="text" name="value" placeholder="some value">
-      <input type="hidden" name="question_id" value="1" />
-      <input id="answer" type="hidden" name="answer" value="malicious-payload" />
+        <input type="text" name="answer" placeholder="some name"/>
+        <input type="text" name="question_id" placeholder="some value">
         <input type="submit" value="Submit" />
     </form>
 

@@ -13,6 +13,7 @@
       <br>
     <input type="text" id="question" name="question" /><br /><br />
     <input type="submit" value="Submit" />
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   </form>
 </div>
 

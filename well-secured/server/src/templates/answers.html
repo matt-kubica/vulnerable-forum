@@ -8,7 +8,7 @@
 {% endwith %}
 
 <div class="box">
-    <h1>{{ question.question_text | safe }}</h1>
+    <h1>{{ question.question_text }}</h1>
 </div>
 
 <div class="box">
@@ -19,6 +19,7 @@
         <input type="text" id="answer" name="answer" />
         <br><br>
         <input type="submit" value="Submit" />
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     </form>
 </div>
 

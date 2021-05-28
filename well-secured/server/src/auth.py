@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 
-from .database import add_user, get_user
+from .models import User
+from . import db
 import logging, uuid, functools
 
 logging.basicConfig(level=logging.DEBUG)
@@ -27,7 +28,7 @@ def login():
     # validate if fields have been provided
     if username and password:
         # check if user exist
-        user = get_user(username=username)
+        user = User.query.filter_by(username=username).first()
         # 'authenticate' user
         if not user or not user.password == password:
             flash('Please check your login details and try again.')
@@ -57,8 +58,11 @@ def signup():
     # validate if fields have been provided
     if email and username and password:
         # if user doesn't exist yet, can be added to database
-        if not get_user(email=email, username=username):
-            add_user(email, username, password)
+        if not User.query.filter_by(username=username, email=email).first():
+            user = User(username=username, email=email, password=password)
+            logging.debug(user)
+            db.session.add(user)
+            db.session.commit()
             return redirect(url_for('auth.login'))
         else:
             flash('Email address already exists')
