@@ -1,0 +1,27 @@
+{% extends "base.html" %} {% block content %}
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="notification is-danger">
+            {{ messages[0] }}. Go to <a href="{{ url_for('auth.login') }}">login page</a>.
+        </div>
+{% endif %}
+{% endwith %}
+
+<div class="box">
+  <form action="/questions" method="POST">
+    <label for="question">Ask your own question:</label>
+      <br>
+    <input type="text" id="question" name="question" /><br /><br />
+    <input type="submit" value="Submit" />
+  </form>
+</div>
+
+{% for question in questions|reverse %}
+<div class="box">
+    <a href="{{ url_for('main.answers_get', question_id=question.id) }}">
+        <p>{{ question.question_text }}</p>
+    </a>
+</div>
+{% endfor %}
+
+{% endblock %}
