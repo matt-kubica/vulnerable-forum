@@ -30,6 +30,14 @@ services:
     networks:
       - default
 
+  malicious-website:
+    container_name: malicious-website
+    image: nginx
+    volumes:
+      - ./malicious-website:/usr/share/nginx/html
+    ports:
+      - "5001:80"
+
   
 volumes:
   postgres_data:
