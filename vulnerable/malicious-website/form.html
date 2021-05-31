@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Malicious Form</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Some Malicious Form</h1>
     <form action="http://localhost:5000/answers" method="POST">
-        <input type="text" name="answer" placeholder="some name"/>
-        <input type="text" name="question_id" placeholder="some value">
-        <input type="submit" value="Submit" />
+      <input type="text" name="answer" placeholder="some answer" />
+      <input type="text" name="question_id" placeholder="question id" />
+      <input type="submit" value="Submit" />
     </form>
-
-</body>
+  </body>
 </html>
